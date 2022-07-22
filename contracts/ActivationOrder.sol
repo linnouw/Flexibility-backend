@@ -28,12 +28,14 @@ contract ActivationOrder{
         return(bid, AR, qte);
     }
 
-    function acceptOrder() public onlyOwner returns() {        
+    function acceptOrder() public returns(bool) {        
         ActivationRequest(AR).setStatus(3);
         //transfer NFT
+        return true;
     }
 
-    function rejectOrder() public onlyOwner{
+    function rejectOrder() public returns(bool){
         ActivationRequest(AR).setStatus(4);
+        return true;
     }
 }
