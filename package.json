@@ -1,5 +1,28 @@
 {
   "dependencies": {
-    "@openzeppelin/contracts": "^4.7.0"
-  }
+    "@openzeppelin/contracts": "^4.7.0",
+    "ganache-cli": "^6.12.2",
+    "truffle": "^5.5.23"
+  },
+  "name": "flexibility-backend",
+  "description": "Requirements :     Install Ganache desktop     Install Metamask wallet extension in Google Chrome.",
+  "version": "1.0.0",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linnouw/Flexibility-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/linnouw/Flexibility-backend/issues"
+  },
+  "homepage": "https://github.com/linnouw/Flexibility-backend#readme"
 }
