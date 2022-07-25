@@ -41,4 +41,8 @@ contract Product {
             rampingPeriod
         );
     }
+
+    function getProductName() external view returns(string memory){
+        return productName;
+    }
 }

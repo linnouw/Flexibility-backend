@@ -12,7 +12,7 @@ contract Bid{
     uint256 startOfDelivery;
     uint256 createdAt;
     
-    constructor(address payable _owner, string memory _serviceProvider, uint256 _price, address _productID, uint256 _quantity, string memory _localization, uint256 _startOfDelivery, uint256 _createdAt) public payable{
+    constructor(address payable _owner, string memory _serviceProvider, uint256 _price, address _productID, uint256 _quantity, string memory _localization, uint256 _startOfDelivery, uint256 _createdAt) payable{
         owner = _owner;
         serviceProvider = _serviceProvider;
         price = _price;
