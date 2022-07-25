@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "./ActivationRequest.sol";
 import "./Bid.sol";
 import "./FlexibilityDP.sol";
+import "./Product.sol";
 
 contract CFT {
     ActivationRequest[] public aRs;
@@ -138,6 +139,10 @@ contract CFT {
             closingDate,
             localization
         );
+    }
+
+    function getProductName(address _productAddress) external view returns(string memory){
+        return Product(_productAddress).getProductName();
     }
 
     function getAllDPs() external view returns (FlexibilityDP[] memory) {

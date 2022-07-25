@@ -10,7 +10,7 @@ contract ActivationOrder{
     ActivationRequest AR;
     uint256 qte;
     
-    constructor(Bid _bid, ActivationRequest _AR, uint256 _qte) public{
+    constructor(Bid _bid, ActivationRequest _AR, uint256 _qte){
         bid = _bid;
         AR = _AR;
         qte = _qte;
