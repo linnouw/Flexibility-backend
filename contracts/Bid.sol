@@ -60,4 +60,8 @@ contract Bid{
         return startOfDelivery;
     }
 
+    function getOwner() external view returns(address payable){
+        return owner;
+    }
+
 }

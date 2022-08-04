@@ -9,6 +9,16 @@ contract FlexibilityList {
     Product mFRR;
     Product aFRR;
     CFT[] public cfts;
+    CFT[] public upcomingCFTs;
+    CFT[] public inprogressCFTs;
+
+    /* ----modifiers----*/
+    modifier validDate(uint256 _openingDate, uint256 _closingDate) {
+        require(_closingDate > _openingDate, "not valid Date");
+        _;
+    }
+    /*------------------*/
+
 
     constructor() {
         mFRR = new Product("3JP", "mFRR", "card", "-", 50);
@@ -24,7 +34,7 @@ contract FlexibilityList {
         uint256 _openingDate,
         uint256 _closingDate,
         string calldata _localization
-    ) external payable {
+    ) external payable validDate(_openingDate, _closingDate){
         CFT newCFT = new CFT(
             _owner,
             _productID,
@@ -37,10 +47,13 @@ contract FlexibilityList {
     }
 
     function getAllProducts() external view returns (Product[] memory) {
+        
         return products;
     }
 
-    function getAllCFTs() external view returns (CFT[] memory) {
+    function getAllCFTs() external view returns(CFT[] memory){
+
         return cfts;
     }
+
 }
