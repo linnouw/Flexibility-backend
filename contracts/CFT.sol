@@ -10,8 +10,8 @@ contract CFT {
     ActivationRequest[] public aRs;
     Bid[] public bids;
     Bid[] public unsortedBids;
-    Bid[] public MOL;
-    ActivationRequest[] public ARL;
+    Bid[] MOL;
+    ActivationRequest[] ARL;
     FlexibilityDP[] public DPs;
     address payable owner;
     address productID;
@@ -19,6 +19,8 @@ contract CFT {
     uint256 openingDate;
     uint256 closingDate;
     string localization;
+    uint256 sum;
+    ActivationRequest[] filtered_ARL;
 
     constructor(
         address payable _owner,
@@ -66,13 +68,31 @@ contract CFT {
         _;
     }
 
+    modifier validQuantity(uint256 _quantity) {
+        require(((_quantity + sumQte()) <= totalPower ) && (_quantity >0), "not valid qte");
+        _;
+    }
+
+    modifier positiveQte(uint256 _quantity) {
+        require((_quantity >0), "not valid qte");
+        _;
+    }
+
     /*-------------------*/
+    function sumQte() internal returns(uint256){
+        sum = 0;
+        for(uint i = 0; i< aRs.length; i++){
+            sum += ActivationRequest(aRs[i]).getQuantity();  
+        }
+
+        return sum;
+    }
 
     function createActivationRequest(
         address payable _owner,
         uint256 _quantity,
         uint256 _startOfDelivery
-    ) external payable onlyOwner(_owner) validDeliveryDate(_startOfDelivery) {
+    ) external payable onlyOwner(_owner) validDeliveryDate(_startOfDelivery) validQuantity(_quantity){
         ActivationRequest newActivationRequest = new ActivationRequest(
             _owner,
             productID,
@@ -97,6 +117,7 @@ contract CFT {
         validBid(_owner)
         validLocalization(_localization)
         validDeliveryDate(_startOfDelivery)
+        positiveQte(_quantity)
     {
         Bid newBid = new Bid(
             _owner,
@@ -149,14 +170,12 @@ contract CFT {
         return DPs;
     }
 
-    function setCurrentARL(uint256 _currentDP) internal returns (bool) {
+    function setCurrentARL(uint256 _startDP, uint256 _endDP) external payable {
         for (uint256 i = 0; i < aRs.length; i++) {
-            if (ActivationRequest(aRs[i]).getCreatedAt() >= _currentDP) {
+            if ((ActivationRequest(aRs[i]).getStartOfDelivery() >= _startDP) && (ActivationRequest(aRs[i]).getStartOfDelivery() < _endDP)) {
                 ARL.push(aRs[i]);
             }
         }
-
-        return true;
     }
 
     function sortBids(Bid[] memory _bids) internal view returns (Bid[] memory) {
@@ -174,35 +193,51 @@ contract CFT {
         return _bids;
     }
 
-    function setCurrentMOL(uint256 _currentDP) internal returns (bool) {
+    function setCurrentMOL(uint256 _startDP, uint256 _endDP) payable external {
         for (uint256 i = 0; i < bids.length; i++) {
-            if (Bid(bids[i]).getCreatedAt() > _currentDP) {
+            if ((Bid(bids[i]).getStartOfDelivery() >= _startDP) && (Bid(bids[i]).getStartOfDelivery()  < _endDP)) {
                 unsortedBids.push(bids[i]);
             }
         }
         MOL = sortBids(unsortedBids);
 
-        return true;
     }
 
-    function createFlexibilityDP(uint256 _currentDP) external returns (bool) {
-        setCurrentARL(_currentDP);
-        setCurrentMOL(_currentDP);
-        FlexibilityDP newFlexibilityDP = new FlexibilityDP(
-            ARL,
-            MOL,
-            _currentDP
-        );
-        DPs.push(newFlexibilityDP);
+    function filter() external payable returns(bool){
+        uint256 quantity = 0;
+        for (uint i=0; i<ARL.length ; i++){
+            if (ActivationRequest(ARL[i]).getQuantity() > quantity){
+                filtered_ARL.push(ARL[i]);
+            }
+            else{
+                ActivationRequest(ARL[i]).setStatus();
+            }
+            quantity = ActivationRequest(ARL[i]).getQuantity();
+            
+        }
 
         return true;
+
     }
 
-    function getARL() external view returns (ActivationRequest[] memory) {
+    function getFiltered_ARL() external view returns(ActivationRequest[] memory){
+        return filtered_ARL;
+    }
+
+    function getARL() external view returns(ActivationRequest[] memory){
+
         return ARL;
     }
 
-    function getMOL() external view returns (Bid[] memory) {
+    function getMOL() external view returns(Bid[] memory){
+
         return MOL;
     }
+
+    function createFlexibilityDP() payable external {
+
+        FlexibilityDP newFlexibilityDP = new FlexibilityDP( filtered_ARL, MOL);
+        DPs.push(newFlexibilityDP);
+    }
+
 }

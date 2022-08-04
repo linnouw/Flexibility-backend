@@ -2,11 +2,8 @@
 pragma solidity ^0.8.0;
 
 contract ActivationRequest{
-    //status = 
-    //["No bids on the MOL", 
-    //"No feedback from FSP", 
-    //"Activation order confirmed by FSP", 
-    //"Activation order rejected by FSP"]
+    enum ARSTATUS{Pending, NoBids}
+
     address payable owner;
     address productID;
     uint256 quantity;
@@ -15,7 +12,6 @@ contract ActivationRequest{
     uint256 createdAt;
     ARSTATUS status;
 
-    enum ARSTATUS {Pending, NoBids, NoFeedback, AOConfirmed, AORejected}
 
     constructor(address payable _owner, address _productID, uint256 _quantity, string memory _localization, uint256 _startOfDelivery, uint256 _createdAt) payable{
         owner = _owner;
@@ -29,32 +25,6 @@ contract ActivationRequest{
 
     function getActivationRequestDetails() external view returns(address payable, address, uint256, string memory, uint256, uint256){
         return(owner, productID, quantity, localization, startOfDelivery, createdAt);
-    }
-
-    function setStatus(uint _status) external returns(bool){
-        if (_status == 1)
-            status = ARSTATUS.NoBids;
-        else if (_status == 2)
-            status = ARSTATUS.NoFeedback;
-        else if (_status == 3)
-            status = ARSTATUS.AOConfirmed;
-        else
-            status = ARSTATUS.AORejected;
-
-        return true;
-    }
-
-    function getStatus() external view returns(string memory){
-        if (uint(status) == 0)
-            return ("Pending");
-        else if(uint(status) == 1)
-            return("No bids on the MOL");
-        else if(uint(status) == 2)
-            return ("No feedback from FSP");
-        else if(uint(status) == 3)
-            return("Activation order confirmed by FSP");
-        else
-            return("Activation order rejected by FSP");
     }
 
     function getLocalization() external view returns(string memory){
@@ -79,8 +49,25 @@ contract ActivationRequest{
         return createdAt;
     }
 
+    function getStartOfDelivery() external view returns(uint256){
+        
+        return startOfDelivery;
+    }
+
     function getOwner() external view returns(address payable){
         return owner;
+    }
+
+    function setStatus() external returns(bool){
+
+            status = ARSTATUS.NoBids;
+            return true;
+    }
+
+    function getStatus() external view returns(ARSTATUS){
+        
+        return status;
+
     }
 
 }

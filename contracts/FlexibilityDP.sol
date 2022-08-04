@@ -1,24 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Bid.sol";
 import "./ActivationRequest.sol";
-import "./ActivationOrder.sol";
 
 contract FlexibilityDP {
+    using SafeMath for uint256;
     ActivationRequest[] ARL;
     Bid[] MOL;
-    uint256 currentDP;
-    ActivationOrder[] AOs;
+    
+    
+    struct ao{
+        address AR_owner;
+        address bid_owner;
+        uint256 qte;
+    }
+
+    ao public newAO;
+    ao[] AOs;
 
     constructor(
         ActivationRequest[] memory _ARL,
-        Bid[] memory _MOL,
-        uint256 _currentDP
+        Bid[] memory _MOL
     ) {
         ARL = _ARL;
         MOL = _MOL;
-        currentDP = _currentDP;
     }
 
     function getARL() external view returns (ActivationRequest[] memory) {
@@ -30,7 +36,7 @@ contract FlexibilityDP {
     }
 
     function pop_ARL(uint256 _index) internal returns (ActivationRequest) {
-        require((_index >= 0) && (_index < ARL.length), "not valid");
+        require((_index >= 0) && (_index < ARL.length), "not valid ARL");
         ActivationRequest element = ARL[_index];
         for (uint256 i = _index; i < ARL.length - 1; i++) {
             ARL[i] = ARL[i + 1];
@@ -42,7 +48,7 @@ contract FlexibilityDP {
     }
 
     function pop_MOL(uint256 _index) internal returns (Bid) {
-        require((_index >= 0) && (_index < MOL.length), "not valid");
+        require((_index >= 0) && (_index < MOL.length), "not valid MOL");
         Bid element = MOL[_index];
         for (uint256 i = _index; i < MOL.length - 1; i++) {
             MOL[i] = MOL[i + 1];
@@ -56,6 +62,9 @@ contract FlexibilityDP {
         internal
         returns (bool)
     {
+        if (ARL.length == 0)
+            ARL.push(_AR);
+        else{
         ActivationRequest element = ARL[_index];
         ARL[_index] = _AR;
         ARL.push(ARL[ARL.length - 1]);
@@ -64,11 +73,14 @@ contract FlexibilityDP {
             ARL[i] = ARL[i - 1];
         }
         ARL[_index + 1] = element;
-
+        }
         return true;
     }
 
     function insert_MOL(uint256 _index, Bid _bid) internal returns (bool) {
+        if (MOL.length == 0)
+            MOL.push(_bid);
+        else{
         Bid element = MOL[_index];
         MOL[_index] = _bid;
         MOL.push(MOL[MOL.length - 1]);
@@ -77,75 +89,64 @@ contract FlexibilityDP {
             MOL[i] = MOL[i - 1];
         }
         MOL[_index + 1] = element;
+        }
 
         return true;
     }
 
-    function createActivationOrder(
-        Bid _bid,
-        ActivationRequest _AR,
-        uint256 _qte
-    ) internal {
-        ActivationOrder newAO = new ActivationOrder(_bid, _AR, _qte);
+    function createAO(address _AROwner, address _BidOwner, uint256 qte) internal returns(bool){
+        newAO.AR_owner = _AROwner;
+        newAO.bid_owner = _BidOwner;
+        newAO.qte = qte;
+
         AOs.push(newAO);
+
+        return true;
     }
 
     function getAllActivationOrders()
         external
         view
-        returns (ActivationOrder[] memory)
+        returns (ao[] memory)
     {
         return AOs;
     }
 
-    function dispatch() external returns (bool) {
-        uint256 previousQte = 0;
-        uint256 initialQte;
-        ActivationRequest currentAR;
-        Bid currentBid;
-        uint256 newBidQuantity;
-        uint256 newARQuantity;
-        uint256 currentAR_qte;
-        ActivationOrder newAO;
+    function dispatch() external payable returns(bool){
+        
+        while( ( MOL.length != 0 ) && ( ARL.length != 0 ) ){
+            Bid currentBid = pop_MOL(0);
+            ActivationRequest currentAR = pop_ARL(0);
+            uint256 q;
 
-        while ((MOL.length != 0) && (ARL.length != 0)) {
-            currentAR = pop_ARL(0);
-            currentBid = pop_MOL(0);
-            currentAR_qte = ActivationRequest(currentAR).getQuantity();
-            initialQte = currentAR_qte;
+            if ( (ActivationRequest(currentAR).getQuantity()) > (Bid(currentBid).getQuantity()) ){
 
-            if ((previousQte >= 0) && (currentAR_qte < previousQte)) {
-                ActivationRequest(currentAR).setStatus(1);
-            } else if (Bid(currentBid).getQuantity() >= currentAR_qte) {
-                newBidQuantity = Bid(currentBid).getQuantity() - currentAR_qte;
-                Bid(currentBid).setQuantity(newBidQuantity);
-                insert_MOL(0, currentBid);
-                //createActivationOrder(currentBid, currentAR , currentAR_qte);
-                newAO = new ActivationOrder(
-                    currentBid,
-                    currentAR,
-                    currentAR_qte
-                );
-                AOs.push(newAO);
-                if (currentAR_qte == 0) {
-                    ActivationRequest(currentAR).setStatus(2);
-                }
-            } else if (Bid(currentBid).getQuantity() < currentAR_qte) {
-                newARQuantity = currentAR_qte - Bid(currentBid).getQuantity();
-                ActivationRequest(currentAR).setQuantity(newARQuantity);
+                ActivationRequest(currentAR).setQuantity( (ActivationRequest(currentAR).getQuantity()).sub(Bid(currentBid).getQuantity()) );
                 insert_ARL(0, currentAR);
-                //createActivationOrder(currentBid, currentAR, Bid(currentBid).getQuantity());
-                newAO = new ActivationOrder(
-                    currentBid,
-                    currentAR,
-                    Bid(currentBid).getQuantity()
-                );
-                AOs.push(newAO);
+                q = Bid(currentBid).getQuantity();
+            
+            }
+            else if ( (ActivationRequest(currentAR).getQuantity()) < (Bid(currentBid).getQuantity()) ){
+
+                Bid(currentBid).setQuantity( (Bid(currentBid).getQuantity()).sub(ActivationRequest(currentAR).getQuantity()) );
+                insert_MOL(0, currentBid);
+                q = ActivationRequest(currentAR).getQuantity();
+                ActivationRequest(currentAR).setQuantity(0);
+
+            }
+            else{
+
+                q = ActivationRequest(currentAR).getQuantity();
+                ActivationRequest(currentAR).setQuantity(0);
+
             }
 
-            previousQte = initialQte;
+            createAO( ActivationRequest(currentAR).getOwner() , Bid(currentBid).getOwner() , q );
+            
         }
 
         return true;
+        
     }
+
 }
