@@ -13,12 +13,12 @@ contract NFT is Ownable, ERC721("Bid NFT","BNFT"){
     struct tokenMetadata {
         uint256 tokenId;
         uint256 timestamp;
-        uint256 tokenURI;
+        address tokenURI;
     }
 
-    function mintToken(address recipient, uint256 quantity) public {
+    function mintToken(address recipient, address bidAddress) public {
         _safeMint(recipient, tokenId);
-        ownershipRecord[recipient].push(tokenMetadata(tokenId, block.timestamp, quantity));
+        ownershipRecord[recipient].push(tokenMetadata(tokenId, block.timestamp, bidAddress));
 
         tokenId = tokenId + 1;
     }

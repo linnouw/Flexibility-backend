@@ -1,5 +1,6 @@
 const FlexibilityList = artifacts.require("FlexibilityList");
 
-module.exports = function (deployer) {
+module.exports = async function (deployer) {
   deployer.deploy(FlexibilityList);
+  
 };
