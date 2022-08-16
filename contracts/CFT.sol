@@ -78,6 +78,11 @@ contract CFT {
         _;
     }
 
+    modifier validDP(uint256 _startDP, uint256 _endDP){
+        require((_startDP < _endDP), "not valid dp");
+        _;
+    }
+
     /*-------------------*/
     function sumQte() internal returns(uint256){
         sum = 0;
@@ -170,7 +175,13 @@ contract CFT {
         return DPs;
     }
 
-    function setCurrentARL(uint256 _startDP, uint256 _endDP) external payable {
+    function getLatestDP() external view returns(FlexibilityDP) {
+
+        return DPs[DPs.length - 1];
+    }
+
+    function setCurrentARL(uint256 _startDP, uint256 _endDP) external payable validDP(_startDP, _endDP){
+        ARL = new ActivationRequest[](0);
         for (uint256 i = 0; i < aRs.length; i++) {
             if ((ActivationRequest(aRs[i]).getStartOfDelivery() >= _startDP) && (ActivationRequest(aRs[i]).getStartOfDelivery() < _endDP)) {
                 ARL.push(aRs[i]);
@@ -193,7 +204,9 @@ contract CFT {
         return _bids;
     }
 
-    function setCurrentMOL(uint256 _startDP, uint256 _endDP) payable external {
+    function setCurrentMOL(uint256 _startDP, uint256 _endDP) payable external validDP(_startDP, _endDP){
+        unsortedBids = new Bid[](0);
+        MOL = new Bid[](0);
         for (uint256 i = 0; i < bids.length; i++) {
             if ((Bid(bids[i]).getStartOfDelivery() >= _startDP) && (Bid(bids[i]).getStartOfDelivery()  < _endDP)) {
                 unsortedBids.push(bids[i]);
