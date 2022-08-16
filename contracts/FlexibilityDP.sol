@@ -9,7 +9,6 @@ contract FlexibilityDP {
     ActivationRequest[] ARL;
     Bid[] MOL;
     
-    
     struct ao{
         address AR_owner;
         address bid_owner;
@@ -113,7 +112,7 @@ contract FlexibilityDP {
     }
 
     function dispatch() external payable returns(bool){
-        AOs = new ao[](0);
+        
         while( ( MOL.length != 0 ) && ( ARL.length != 0 ) ){
             Bid currentBid = pop_MOL(0);
             ActivationRequest currentAR = pop_ARL(0);

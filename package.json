@@ -1,8 +1,9 @@
 {
   "dependencies": {
-    "@openzeppelin/contracts": "^4.7.2",
+    "@openzeppelin/contracts": "^4.7.3",
     "ethernal": "^0.14.1",
     "ganache-cli": "^6.12.2",
+    "npm": "^8.17.0",
     "truffle": "^5.5.23"
   },
   "name": "flexibility-backend",
