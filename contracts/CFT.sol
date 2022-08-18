@@ -217,6 +217,7 @@ contract CFT {
     }
 
     function filter() external payable returns(bool){
+        filtered_ARL = new ActivationRequest[](0);
         uint256 quantity = 0;
         for (uint i=0; i<ARL.length ; i++){
             if (ActivationRequest(ARL[i]).getQuantity() > quantity){
@@ -248,7 +249,9 @@ contract CFT {
     }
 
     function createFlexibilityDP() payable external {
-
+        
+        require(filtered_ARL.length != 0, "there is no ARL");
+        require(MOL.length != 0 , "there is no MOL");
         FlexibilityDP newFlexibilityDP = new FlexibilityDP( filtered_ARL, MOL);
         DPs.push(newFlexibilityDP);
     }
