@@ -181,6 +181,7 @@ contract CFT {
     }
 
     function setCurrentARL(uint256 _startDP, uint256 _endDP) external payable validDP(_startDP, _endDP){
+        
         ARL = new ActivationRequest[](0);
         for (uint256 i = 0; i < aRs.length; i++) {
             if ((ActivationRequest(aRs[i]).getStartOfDelivery() >= _startDP) && (ActivationRequest(aRs[i]).getStartOfDelivery() < _endDP)) {
@@ -250,8 +251,8 @@ contract CFT {
 
     function createFlexibilityDP() payable external {
         
-        require(filtered_ARL.length != 0, "there is no ARL");
-        require(MOL.length != 0 , "there is no MOL");
+        assert(filtered_ARL.length != 0);
+        assert(MOL.length != 0 );
         FlexibilityDP newFlexibilityDP = new FlexibilityDP( filtered_ARL, MOL);
         DPs.push(newFlexibilityDP);
     }
