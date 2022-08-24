@@ -35,7 +35,7 @@ contract FlexibilityDP {
     }
 
     function pop_ARL(uint256 _index) internal returns (ActivationRequest) {
-        require((_index >= 0) && (_index < ARL.length), "not valid ARL");
+        assert((_index >= 0) && (_index < ARL.length));
         ActivationRequest element = ARL[_index];
         for (uint256 i = _index; i < ARL.length - 1; i++) {
             ARL[i] = ARL[i + 1];
@@ -47,7 +47,7 @@ contract FlexibilityDP {
     }
 
     function pop_MOL(uint256 _index) internal returns (Bid) {
-        require((_index >= 0) && (_index < MOL.length), "not valid MOL");
+        assert((_index >= 0) && (_index < MOL.length));
         Bid element = MOL[_index];
         for (uint256 i = _index; i < MOL.length - 1; i++) {
             MOL[i] = MOL[i + 1];
