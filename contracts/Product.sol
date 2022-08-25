@@ -8,6 +8,9 @@ contract Product {
     string direction;
     uint256 rampingPeriod;
 
+    // =============================================================
+    //                            Deployment
+    // =============================================================
     constructor(
         string memory _EIC_code,
         string memory _productName,
@@ -22,6 +25,9 @@ contract Product {
         rampingPeriod = _rampingPeriod;
     }
 
+    // =============================================================
+    //                     Reading all product attributes
+    // =============================================================    
     function getProductDetails()
         external
         view
@@ -41,7 +47,7 @@ contract Product {
             rampingPeriod
         );
     }
-
+    
     function getProductName() external view returns(string memory){
         return productName;
     }

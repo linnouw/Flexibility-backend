@@ -5,6 +5,8 @@ import "./Product.sol";
 import "./CFT.sol";
 
 contract FlexibilityList {
+    
+    // attributes
     Product[] public products;
     Product mFRR;
     Product aFRR;
@@ -12,14 +14,18 @@ contract FlexibilityList {
     CFT[] public upcomingCFTs;
     CFT[] public inprogressCFTs;
 
-    /* ----modifiers----*/
+    // =============================================================
+    //                            Modifiers
+    // =============================================================
     modifier validDate(uint256 _openingDate, uint256 _closingDate) {
         require(_closingDate > _openingDate, "not valid Date");
         _;
     }
-    /*------------------*/
 
 
+    // =============================================================
+    //                            Deployment
+    // =============================================================
     constructor() {
         mFRR = new Product("3JP", "mFRR", "card", "-", 50);
         products.push(mFRR);
@@ -27,6 +33,9 @@ contract FlexibilityList {
         products.push(aFRR);
     }
 
+    // =============================================================
+    //                   Creating of Call for tenders
+    // =============================================================
     function createCFT(
         address payable _owner,
         address _productID,
@@ -46,11 +55,16 @@ contract FlexibilityList {
         cfts.push(newCFT);
     }
 
+    // =============================================================
+    //        Reading products and Call for tenders addresses
+    // =============================================================    
+    // Returns all products
     function getAllProducts() external view returns (Product[] memory) {
         
         return products;
     }
 
+    // returns all calls for tenders
     function getAllCFTs() external view returns(CFT[] memory){
 
         return cfts;

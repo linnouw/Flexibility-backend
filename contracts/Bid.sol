@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 contract Bid{
 
+    // attributes
     address payable owner;
     string serviceProvider;
     uint256 price;
@@ -12,6 +13,9 @@ contract Bid{
     uint256 startOfDelivery;
     uint256 createdAt;
     
+    // =============================================================
+    //                 Deployment
+    // =============================================================  
     constructor(address payable _owner, string memory _serviceProvider, uint256 _price, address _productID, uint256 _quantity, string memory _localization, uint256 _startOfDelivery, uint256 _createdAt) payable{
         owner = _owner;
         serviceProvider = _serviceProvider;
@@ -23,6 +27,9 @@ contract Bid{
         createdAt = _createdAt;
     }
 
+    // =============================================================
+    //                 Reading bid attributes
+    // =============================================================  
     function getBidDetails() public view returns(address payable, string memory, uint256, address, uint256, string memory, uint256, uint256){
         
         return(owner, serviceProvider, price, productID, quantity, localization,  startOfDelivery, createdAt);
@@ -43,13 +50,6 @@ contract Bid{
         return(quantity);
     }
 
-    function setQuantity(uint256 _qte) external returns(bool){
-        
-        quantity = _qte;
-
-        return true;
-    }
-
     function getCreatedAt() external view returns(uint256){
         
         return createdAt;
@@ -62,6 +62,16 @@ contract Bid{
 
     function getOwner() external view returns(address payable){
         return owner;
+    }
+
+    // =============================================================
+    //                 Setting bid quantity
+    // =============================================================  
+    function setQuantity(uint256 _qte) external returns(bool){
+        
+        quantity = _qte;
+
+        return true;
     }
 
 }

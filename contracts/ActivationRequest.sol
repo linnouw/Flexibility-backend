@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 contract ActivationRequest{
     enum ARSTATUS{Pending, NoBids}
 
+    // attributes
     address payable owner;
     address productID;
     uint256 quantity;
@@ -12,7 +13,9 @@ contract ActivationRequest{
     uint256 createdAt;
     ARSTATUS status;
 
-
+    // =============================================================
+    //                 Deployment
+    // =============================================================  
     constructor(address payable _owner, address _productID, uint256 _quantity, string memory _localization, uint256 _startOfDelivery, uint256 _createdAt) payable{
         owner = _owner;
         productID = _productID;
@@ -23,6 +26,9 @@ contract ActivationRequest{
         status = ARSTATUS.Pending;
     }
 
+    // =============================================================
+    //             Reading activation request attributes
+    // =============================================================  
     function getActivationRequestDetails() external view returns(address payable, address, uint256, string memory, uint256, uint256){
         return(owner, productID, quantity, localization, startOfDelivery, createdAt);
     }
@@ -35,13 +41,6 @@ contract ActivationRequest{
     function getQuantity() external view returns(uint256){
 
         return(quantity);
-    }
-
-    function setQuantity(uint256 _qte) external returns(bool){
-        
-        quantity = _qte;
-
-        return true;
     }
 
     function getCreatedAt() external view returns(uint256){
@@ -58,16 +57,29 @@ contract ActivationRequest{
         return owner;
     }
 
+    function getStatus() external view returns(ARSTATUS){
+        
+        return status;
+
+    }
+
+    // =============================================================
+    //                 Set activation request status
+    // =============================================================  
     function setStatus() external returns(bool){
 
             status = ARSTATUS.NoBids;
             return true;
     }
 
-    function getStatus() external view returns(ARSTATUS){
+    // =============================================================
+    //                 Set quantity status
+    // =============================================================  
+    function setQuantity(uint256 _qte) external returns(bool){
         
-        return status;
+        quantity = _qte;
 
-    }
+        return true;
+    }    
 
 }

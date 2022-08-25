@@ -6,18 +6,20 @@ import "./ActivationRequest.sol";
 
 contract FlexibilityDP {
     using SafeMath for uint256;
-    ActivationRequest[] ARL;
-    Bid[] MOL;
-    
     struct ao{
         address AR_owner;
         address bid_owner;
         uint256 qte;
     }
-
+    // attributes
+    ActivationRequest[] ARL;
+    Bid[] MOL;
     ao public newAO;
     ao[] AOs;
 
+    // =============================================================
+    //                            Deployment
+    // =============================================================
     constructor(
         ActivationRequest[] memory _ARL,
         Bid[] memory _MOL
@@ -26,6 +28,9 @@ contract FlexibilityDP {
         MOL = _MOL;
     }
 
+    // ===========================================================================
+    //    Reading addresses of activation requests, MOL and activation orders
+    // ===========================================================================
     function getARL() external view returns (ActivationRequest[] memory) {
         return ARL;
     }
@@ -34,6 +39,19 @@ contract FlexibilityDP {
         return MOL;
     }
 
+    function getAllActivationOrders()
+        external
+        view
+        returns (ao[] memory)
+    {
+        return AOs;
+    }
+
+    // ===========================================================================
+    //                            Bid Matching algorithm
+    // ===========================================================================
+    // function to delete element from ARL at index ( ARL[index] will be deleted )
+    // INTERNAL FUNCTION USED IN DISPATCH() METHOD
     function pop_ARL(uint256 _index) internal returns (ActivationRequest) {
         assert((_index >= 0) && (_index < ARL.length));
         ActivationRequest element = ARL[_index];
@@ -46,6 +64,8 @@ contract FlexibilityDP {
         return element;
     }
 
+    // function to delete element from MOL at index ( MOL[index] will be deleted )
+    // INTERNAL FUNCTION USED IN DISPATCH() METHOD
     function pop_MOL(uint256 _index) internal returns (Bid) {
         assert((_index >= 0) && (_index < MOL.length));
         Bid element = MOL[_index];
@@ -57,6 +77,8 @@ contract FlexibilityDP {
         return element;
     }
 
+    // function to insert _AR from ARL at index ( _AR will be inserted at index in ARL )
+    // INTERNAL FUNCTION USED IN DISPATCH() METHOD
     function insert_ARL(uint256 _index, ActivationRequest _AR)
         internal
         returns (bool)
@@ -76,6 +98,8 @@ contract FlexibilityDP {
         return true;
     }
 
+    // function to insert _bid from MOL at index ( _bid will be inserted at index in MOL )
+    // INTERNAL FUNCTION USED IN DISPATCH() METHOD
     function insert_MOL(uint256 _index, Bid _bid) internal returns (bool) {
         if (MOL.length == 0)
             MOL.push(_bid);
@@ -93,6 +117,8 @@ contract FlexibilityDP {
         return true;
     }
 
+    // function to create activation order
+    // INTERNAL FUNCTION USED IN DISPATCH() METHOD
     function createAO(address _AROwner, address _BidOwner, uint256 qte) internal returns(bool){
         newAO.AR_owner = _AROwner;
         newAO.bid_owner = _BidOwner;
@@ -103,14 +129,7 @@ contract FlexibilityDP {
         return true;
     }
 
-    function getAllActivationOrders()
-        external
-        view
-        returns (ao[] memory)
-    {
-        return AOs;
-    }
-
+    // BID MATCHING ALGORITHM
     function dispatch() external payable returns(bool){
         
         while( ( MOL.length != 0 ) && ( ARL.length != 0 ) ){
